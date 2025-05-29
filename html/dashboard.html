@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Orders Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/index.css">
+    <link rel="stylesheet" href="/css/charts.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <aside>
+        <h1>Menu</h1>
+        <nav>
+            <a href="#">Dashboard</a>
+            <a href="index.html" class="active">Pedidos</a>
+        </nav>
+    </aside>
+    <main>
+
+        <section>
+            <div>
+                <h2>Peças Pedidas</h2>
+                <canvas id="pecasChart"></canvas>
+            </div>
+            <div>
+                <h2>Pedidos por Cliente</h2>
+                <canvas id="clientesChart"></canvas>
+            </div>
+        </section>
+
+
+    </main>
+
+    <script src="/js/charts.js"></script>
+    <script src="/js/active.js"></script>
+    
+</body>
+
+</html>
