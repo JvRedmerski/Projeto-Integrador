@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Pedido de Montagem</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      padding: 20px;
+    }
+    .pedido-form {
+      background-color: white;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 400px;
+      margin: auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+    }
+    select, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="pedido-form">
+    <h2>Monte seu Pedido</h2>
+    <form id="formularioPedido">
+      <label for="peca1">Peça 1:</label>
+      <select id="peca1">
+        <option value="">-- Escolha --</option>
+        <option value="redonda">Redonda</option>
+        <option value="hexagonal">Hexagonal</option>
+        <option value="quadrada">Quadrada</option>
+      </select>
+
+      <label for="peca2">Peça 2:</label>
+      <select id="peca2">
+        <option value="">-- Escolha --</option>
+        <option value="redonda">Redonda</option>
+        <option value="hexagonal">Hexagonal</option>
+        <option value="quadrada">Quadrada</option>
+      </select>
+
+      <label for="peca3">Peça 3:</label>
+      <select id="peca3">
+        <option value="">-- Escolha --</option>
+        <option value="redonda">Redonda</option>
+        <option value="hexagonal">Hexagonal</option>
+        <option value="quadrada">Quadrada</option>
+      </select>
+
+      <button type="submit">Enviar Pedido</button>
+    </form>
+  </div>
+
+  <script>
+    document.getElementById('formularioPedido').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const pedido = {
+        peca1: document.getElementById('peca1').value,
+        peca2: document.getElementById('peca2').value,
+        peca3: document.getElementById('peca3').value
+      };
+
+      fetch('http://localhost:1880/pedido', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(pedido)
+      })
+      .then(response => response.text())
+      .then(data => {
+        alert("Pedido enviado com sucesso!");
+      })
+      .catch(error => {
+        console.error('Erro ao enviar pedido:', error);
+        alert("Erro ao enviar pedido.");
+      });
+    });
+  </script>
+</body>
+</html>
