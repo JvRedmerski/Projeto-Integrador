@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -31,24 +32,14 @@
         </tr>
       </thead>
       <tbody>
+        {% for status, pedido_numero, nome_cliente, data_pedido in pedidos %}
         <tr>
-          <td class="status">Aberto</td>
-          <td>SHT512</td>
-          <td>10 Motives</td>
-          <td>Jun 21, 2017</td>
+          <td class="status">{{ status }}</td>
+          <td>{{ pedido_numero }}</td>
+          <td>{{ nome_cliente }}</td>
+          <td>{{ data_pedido | datetimeformat }}</td>
         </tr>
-        <tr>
-          <td class="status">Aberto</td>
-          <td>sb1</td>
-          <td>West Wing</td>
-          <td>Feb 09, 2017</td>
-        </tr>
-        <tr>
-          <td class="status">Aberto</td>
-          <td>R123a</td>
-          <td>Joãozinho </td>
-          <td>Apr 19, 2017</td> 
-        </tr>
+        {% endfor %}
       </tbody>
     </table>
   </main>

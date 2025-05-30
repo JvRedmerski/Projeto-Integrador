@@ -1,10 +1,17 @@
 from flask import Flask, render_template, g
 import sqlite3
-app = Flask(__name__)
-
-DATABASE = "pedidos.db"
+from datetime import datetime
 
 app = Flask(__name__, template_folder='html')
+DATABASE = "pedidos.db"
+
+# Filtro customizado para formatar datas
+@app.template_filter('datetimeformat')
+def datetimeformat(value):
+    try:
+        return datetime.strptime(value, '%Y-%m-%d').strftime('%b %d, %Y')
+    except Exception:
+        return value
 
 def get_db():
     db = getattr(g, '_database', None)
@@ -22,9 +29,13 @@ def close_connection(exception):
 def pedidos():
     cur = get_db().cursor()
     cur.execute("""
-        SELECT p.pedido_numero, c.nome, p.data_pedido
-        FROM pedidos p
-        JOIN clientes c ON c.id_cliente = p.id_cliente
+        SELECT 
+            'Aberto' AS status,
+            p.pedido_numero,
+            c.nome AS nome_cliente,
+            p.data_pedido
+        FROM Pedidos p
+        JOIN Clientes c ON p.id_cliente = c.id_cliente;
     """)
     pedidos = cur.fetchall()
     return render_template('index.html', pedidos=pedidos)
