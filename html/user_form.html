@@ -1,37 +1,19 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Pedido de Montagem</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f4f4;
-      padding: 20px;
-    }
-    .pedido-form {
-      background-color: white;
-      padding: 20px;
-      border-radius: 10px;
-      max-width: 400px;
-      margin: auto;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-    h2 {
-      text-align: center;
-    }
-    label {
-      display: block;
-      margin-top: 10px;
-    }
-    select, button {
-      width: 100%;
-      padding: 10px;
-      margin-top: 5px;
-    }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Novo pedido</title>
+  <link rel="stylesheet" href="/static/css/form.css">
 </head>
 <body>
+
+  <!-- Header da Bosch com botão de voltar -->
+  <div class="header">
+    <a href="{{ url_for('pedidos') }}" class="voltar-btn">Voltar</a>
+  </div>
+
+  <!-- Formulário -->
   <div class="pedido-form">
     <h2>Monte seu Pedido</h2>
     <form id="formularioPedido">
@@ -63,32 +45,6 @@
     </form>
   </div>
 
-  <script>
-    document.getElementById('formularioPedido').addEventListener('submit', function(e) {
-      e.preventDefault();
-
-      const pedido = {
-        peca1: document.getElementById('peca1').value,
-        peca2: document.getElementById('peca2').value,
-        peca3: document.getElementById('peca3').value
-      };
-
-      fetch('http://localhost:1880/pedido', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(pedido)
-      })
-      .then(response => response.text())
-      .then(data => {
-        alert("Pedido enviado com sucesso!");
-      })
-      .catch(error => {
-        console.error('Erro ao enviar pedido:', error);
-        alert("Erro ao enviar pedido.");
-      });
-    });
-  </script>
+  <script src="/static/js/form_submit.js"></script>
 </body>
 </html>
