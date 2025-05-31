@@ -20,7 +20,9 @@
   <main>
     <header>
       <input type="text" placeholder="Nº pedido ou nome do cliente" />
-      <button class="btn">Criar novo pedido</button>
+      <a href="{{ url_for('novo_pedido') }}">
+        <button class="btn">Criar novo pedido</button>
+      </a>
     </header>
     <table>
       <thead>

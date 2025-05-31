@@ -44,5 +44,9 @@ def pedidos():
 def dashboard():
     return render_template('dashboard.html')
 
+@app.route('/novo-pedido')
+def novo_pedido():
+     return render_template('user_form.html')
+
 if __name__ == '__main__':
     app.run(debug=True)
