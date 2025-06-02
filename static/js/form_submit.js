@@ -2,6 +2,7 @@ document.getElementById('formularioPedido').addEventListener('submit', function 
     e.preventDefault();
 
     const pedido = {
+        nome: document.getElementById('nome').value,
         peca1: document.getElementById('peca1').value,
         peca2: document.getElementById('peca2').value,
         peca3: document.getElementById('peca3').value

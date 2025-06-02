@@ -48,6 +48,13 @@ body {
     margin-bottom: 1.5rem;
 }
 
+input[type="text"] {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
 label {
     display: block;
     margin: 1rem 0 0.5rem;
@@ -73,8 +80,8 @@ button[type="submit"] {
 
 .voltar-btn {
     display: inline-block;
+    margin-top: -2%;
     padding: 0.6rem 1.2rem;
-    margin-top: -5%;
     background-color: #00c4cc;
     color: white;
     text-decoration: none;
