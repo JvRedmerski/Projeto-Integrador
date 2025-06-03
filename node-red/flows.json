@@ -115,36 +115,19 @@
         ]
     },
     {
-        "id": "ae89dc2897ea07be",
-        "type": "function",
-        "z": "0bdcbfbb92e8e12f",
-        "name": "Gerar inserts itens",
-        "func": "const pecas = msg.pecas;\nconst idMap = { 1: 1, 2: 2, 3: 3 };\n\nmsg.itens = pecas.map(p => {\n    return {\n        topic: \"INSERT INTO itens_pedido (codigo_pedido, id_item, quantidade) VALUES (?, ?, ?)\",\n        payload: [msg.codigoPedido, idMap[p], 1]\n    };\n});\n\nreturn [msg.itens];",
-        "outputs": 1,
-        "timeout": "",
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
-        "x": 1460,
-        "y": 120,
-        "wires": [
-            [
-                "a453401c3b1ae9f0"
-            ]
-        ]
-    },
-    {
         "id": "a453401c3b1ae9f0",
         "type": "sqlite",
         "z": "0bdcbfbb92e8e12f",
         "mydb": "23892abdd9f1d5ab",
+        "sqlquery": "msg.topic",
         "sql": "",
         "name": "Inserir itens",
-        "x": 1680,
-        "y": 120,
+        "x": 1370,
+        "y": 240,
         "wires": [
-            []
+            [
+                "419ed72e1c8b222d"
+            ]
         ]
     },
     {
@@ -230,7 +213,7 @@
         "y": 240,
         "wires": [
             [
-                "9a387fa2133dfb14"
+                "149044635898781c"
             ]
         ]
     },
@@ -246,8 +229,8 @@
         "complete": "false",
         "statusVal": "",
         "statusType": "auto",
-        "x": 1100,
-        "y": 140,
+        "x": 1420,
+        "y": 340,
         "wires": []
     },
     {
@@ -269,6 +252,38 @@
                 "5168f5151900f1d5"
             ]
         ]
+    },
+    {
+        "id": "149044635898781c",
+        "type": "function",
+        "z": "0bdcbfbb92e8e12f",
+        "name": "Preparar Itens_Pedido",
+        "func": "const nomes = msg.payload[0]; // nomes dos itens (pode haver repetidos)\nconst info_pedido = msg.payload[1];\n\nconst codigo_pedido = info_pedido[0]; // ex: \"RUEQOP4U\"\n\n// Mapeamento nome → id_item\nconst mapaItens = {\n  \"quadrada\": 1,\n  \"hexagonal\": 2,\n  \"redonda\": 3\n};\n\n// Agrupar e contar quantidades\nconst contagem = {};\nfor (const nome of nomes) {\n  if (mapaItens[nome]) {\n    contagem[nome] = (contagem[nome] || 0) + 1;\n  }\n}\n\n// Criar array de mensagens formatadas\nconst resultado = Object.entries(contagem).map(([nome, quantidade]) => {\n  const id_item = mapaItens[nome];\n  return {\n    topic: \"INSERT INTO Itens_Pedido (pedido_numero, id_item, quantidade) VALUES ($codigo_pedido, $id_item, $quantidade)\",\n    payload: [codigo_pedido, id_item, quantidade]\n  };\n});\n\n// Retornar diretamente o array no formato que o Node-RED espera\nreturn [resultado];\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1130,
+        "y": 240,
+        "wires": [
+            [
+                "9a387fa2133dfb14",
+                "a453401c3b1ae9f0"
+            ]
+        ]
+    },
+    {
+        "id": "419ed72e1c8b222d",
+        "type": "http response",
+        "z": "0bdcbfbb92e8e12f",
+        "name": "Resposta OK",
+        "statusCode": "200",
+        "headers": {},
+        "x": 1550,
+        "y": 240,
+        "wires": []
     },
     {
         "id": "23892abdd9f1d5ab",
