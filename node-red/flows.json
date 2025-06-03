@@ -29,14 +29,15 @@
         "z": "0bdcbfbb92e8e12f",
         "name": "Parse JSON",
         "property": "payload",
-        "action": "",
+        "action": "obj",
         "pretty": false,
         "x": 300,
         "y": 120,
         "wires": [
             [
                 "8b172b3ab00b345b",
-                "85e64f1c38a8014a"
+                "eec5ca02dbccb097",
+                "aa3be72826696712"
             ]
         ]
     },
@@ -45,7 +46,7 @@
         "type": "function",
         "z": "0bdcbfbb92e8e12f",
         "name": "Preparar INSERT cliente",
-        "func": "msg.nome = msg.payload.nome;\nmsg.pecas = [msg.payload.peca1, msg.payload.peca2, msg.payload.peca3];\nmsg.topic = \"INSERT INTO clientes (nome) VALUES (\"+ msg.nome + \")\";\nmsg.payload = [msg.nome];\nreturn msg;",
+        "func": "msg.nome = msg.payload.nome;\nmsg.pecas = [msg.payload.peca1, msg.payload.peca2, msg.payload.peca3];\nmsg.topic = \"INSERT INTO clientes (nome) VALUES ($nome)\";\nmsg.payload = [msg.nome];\nreturn msg;",
         "outputs": 1,
         "timeout": "",
         "noerr": 0,
@@ -65,14 +66,14 @@
         "type": "sqlite",
         "z": "0bdcbfbb92e8e12f",
         "mydb": "23892abdd9f1d5ab",
+        "sqlquery": "msg.topic",
         "sql": "",
         "name": "Inserir cliente",
         "x": 740,
         "y": 120,
         "wires": [
             [
-                "6b47dcd93fd4f91e",
-                "a41a97fb6db88c9d"
+                "c5f92f4cb62bd648"
             ]
         ]
     },
@@ -81,18 +82,19 @@
         "type": "function",
         "z": "0bdcbfbb92e8e12f",
         "name": "Gerar pedido e salvar",
-        "func": "// Simula o last inserted ID (Node-RED sqlite não fornece automaticamente)\nflow.set(\"ultimoCliente\", flow.get(\"ultimoCliente\") + 1 || 1);\nconst id_cliente = flow.get(\"ultimoCliente\");\n\nconst gerarCodigo = (tam = 8) => {\n    const c = \"ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789\";\n    return Array.from({ length: tam }, () => c[Math.floor(Math.random() * c.length)]).join(\"\");\n};\n\nconst codigo = gerarCodigo();\n\nmsg.codigoPedido = codigo;\nmsg.id_cliente = id_cliente;\nmsg.topic = \"INSERT INTO pedidos (id_cliente, codigo) VALUES (?, ?)\";\nmsg.payload = [id_cliente, codigo];\nreturn msg;",
+        "func": "const gerarCodigo = (tam = 8) => {\n    const c = \"ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789\";\n    return Array.from({ length: tam }, () => c[Math.floor(Math.random() * c.length)]).join(\"\");\n};\n\nfunction dataHojeFormatada() {\n    const hoje = new Date();\n\n    const ano = hoje.getFullYear();\n    const mes = String(hoje.getMonth() + 1).padStart(2, '0'); // meses começam do 0\n    const dia = String(hoje.getDate()).padStart(2, '0');\n\n    return `${ano}-${mes}-${dia}`;\n}\n\nconst codigo = gerarCodigo();\nlet data = dataHojeFormatada();\n\nmsg.codigoPedido = codigo;\nmsg.id_cliente = msg.payload[0].id_cliente;\nmsg.topic = \"INSERT INTO pedidos (pedido_numero, id_cliente, data_pedido) VALUES ($codigoPedido, $id_cliente, $data)\";\nmsg.payload = [msg.codigoPedido, msg.id_cliente, data];\nreturn msg;",
         "outputs": 1,
         "timeout": "",
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 980,
-        "y": 120,
+        "x": 780,
+        "y": 340,
         "wires": [
             [
-                "e2702e24032d72b6"
+                "e2702e24032d72b6",
+                "5168f5151900f1d5"
             ]
         ]
     },
@@ -101,13 +103,14 @@
         "type": "sqlite",
         "z": "0bdcbfbb92e8e12f",
         "mydb": "23892abdd9f1d5ab",
+        "sqlquery": "msg.topic",
+        "sql": "",
         "name": "Inserir pedido",
-        "x": 1220,
-        "y": 120,
+        "x": 1000,
+        "y": 340,
         "wires": [
             [
-                "ae89dc2897ea07be",
-                "8ec9b201f15ec1b2"
+                "ad05c6495a9c4d02"
             ]
         ]
     },
@@ -141,9 +144,7 @@
         "x": 1680,
         "y": 120,
         "wires": [
-            [
-                "c5f92f4cb62bd648"
-            ]
+            []
         ]
     },
     {
@@ -153,12 +154,88 @@
         "name": "Resposta OK",
         "statusCode": "200",
         "headers": {},
-        "x": 1880,
+        "x": 910,
         "y": 120,
         "wires": []
     },
     {
-        "id": "85e64f1c38a8014a",
+        "id": "eec5ca02dbccb097",
+        "type": "function",
+        "z": "0bdcbfbb92e8e12f",
+        "name": "SELECT Nome",
+        "func": "msg.nome = msg.payload.nome;\nmsg.topic = \"SELECT id_cliente FROM Clientes WHERE nome = $nome\";\nmsg.payload = [msg.nome];  \nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 340,
+        "y": 340,
+        "wires": [
+            [
+                "64d7f59997319598"
+            ]
+        ]
+    },
+    {
+        "id": "64d7f59997319598",
+        "type": "sqlite",
+        "z": "0bdcbfbb92e8e12f",
+        "mydb": "23892abdd9f1d5ab",
+        "sqlquery": "msg.topic",
+        "sql": "",
+        "name": "SELECT Nome",
+        "x": 560,
+        "y": 340,
+        "wires": [
+            [
+                "6b47dcd93fd4f91e"
+            ]
+        ]
+    },
+    {
+        "id": "ad05c6495a9c4d02",
+        "type": "http response",
+        "z": "0bdcbfbb92e8e12f",
+        "name": "Resposta OK",
+        "statusCode": "200",
+        "headers": {},
+        "x": 1190,
+        "y": 340,
+        "wires": []
+    },
+    {
+        "id": "5168f5151900f1d5",
+        "type": "join",
+        "z": "0bdcbfbb92e8e12f",
+        "name": "JOIN Itens_Pedido",
+        "mode": "custom",
+        "build": "array",
+        "property": "payload",
+        "propertyType": "msg",
+        "key": "payload",
+        "joiner": "\\n",
+        "joinerType": "str",
+        "useparts": false,
+        "accumulate": false,
+        "timeout": "",
+        "count": "2",
+        "reduceRight": false,
+        "reduceExp": "",
+        "reduceInit": "",
+        "reduceInitType": "",
+        "reduceFixup": "",
+        "x": 880,
+        "y": 240,
+        "wires": [
+            [
+                "9a387fa2133dfb14"
+            ]
+        ]
+    },
+    {
+        "id": "9a387fa2133dfb14",
         "type": "debug",
         "z": "0bdcbfbb92e8e12f",
         "name": "debug 1",
@@ -169,41 +246,29 @@
         "complete": "false",
         "statusVal": "",
         "statusType": "auto",
-        "x": 460,
-        "y": 200,
+        "x": 1100,
+        "y": 140,
         "wires": []
     },
     {
-        "id": "a41a97fb6db88c9d",
-        "type": "debug",
+        "id": "aa3be72826696712",
+        "type": "function",
         "z": "0bdcbfbb92e8e12f",
-        "name": "debug 2",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "false",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 920,
+        "name": "Preparar INSERT cliente",
+        "func": "msg.payload = [msg.payload.peca1, msg.payload.peca2, msg.payload.peca3];\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 510,
         "y": 200,
-        "wires": []
-    },
-    {
-        "id": "8ec9b201f15ec1b2",
-        "type": "debug",
-        "z": "0bdcbfbb92e8e12f",
-        "name": "debug 3",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "false",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 1380,
-        "y": 200,
-        "wires": []
+        "wires": [
+            [
+                "5168f5151900f1d5"
+            ]
+        ]
     },
     {
         "id": "23892abdd9f1d5ab",
