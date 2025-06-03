@@ -12,6 +12,8 @@ body {
 }
 
 aside {
+    position: fixed;
+    height: 100vh;
     width: 250px;
     background: #2c2f48;
     color: white;
@@ -42,6 +44,7 @@ main {
 }
 
 header {
+    margin-left: 250px;
     display: flex;
     justify-content: space-between;
     align-items: center;
