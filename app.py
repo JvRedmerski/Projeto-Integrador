@@ -48,5 +48,43 @@ def dashboard():
 def novo_pedido():
      return render_template('user_form.html')
 
+from flask import jsonify, request
+
+@app.route('/api/dados_dashboard')
+def dados_dashboard():
+    db = get_db()
+    cur = db.cursor()
+
+    # Consulta 1: Peças pedidas
+    cur.execute("""
+        SELECT i.item, SUM(IP.quantidade) AS total
+        FROM itens_pedido IP
+        JOIN Itens i ON IP.id_item = i.id_item
+        GROUP BY i.item;
+    """)
+    pecas_data = cur.fetchall()
+    pecas = {
+        "labels": [linha[0] for linha in pecas_data],
+        "quantidades": [linha[1] for linha in pecas_data]
+    }
+
+    # Consulta 2: Pedidos por cliente
+    cur.execute("""
+        SELECT c.nome, COUNT(*) AS total
+        FROM Pedidos p
+        JOIN Clientes c ON p.id_cliente = c.id_cliente
+        GROUP BY c.nome;
+    """)
+    clientes_data = cur.fetchall()
+    clientes = {
+        "labels": [linha[0] for linha in clientes_data],
+        "quantidades": [linha[1] for linha in clientes_data]
+    }
+
+    return jsonify({"pecas": pecas, "clientes": clientes})
+
+
+
+
 if __name__ == '__main__':
     app.run(debug=True)

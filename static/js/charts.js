@@ -1,51 +1,53 @@
-// Dados fictícios — substitua com os dados reais do seu banco
-    const dadosPecas = {
-      labels: ['Camiseta', 'Calça', 'Jaqueta', 'Vestido', 'Saia'],
-      datasets: [{
-        data: [10, 15, 5, 8, 12],
-        backgroundColor: ['#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF6384']
-      }]
-    };
+async function carregarGraficos() {
+  const resposta = await fetch("/api/dados_dashboard");
+  const dados = await resposta.json();
 
-    const configPecas = {
-      type: 'doughnut',
-      data: dadosPecas,
-      options: {
-        responsive: true,
-        plugins: {
-          legend: {
-            position: 'bottom'
-          },
-          title: {
-            display: false
-          }
-        }
+  // Gráfico de peças
+  const dadosPecas = {
+    labels: dados.pecas.labels,
+    datasets: [{
+      data: dados.pecas.quantidades,
+      backgroundColor: ['#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF6384']
+    }]
+  };
+
+  const configPecas = {
+    type: 'doughnut',
+    data: dadosPecas,
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { position: 'bottom' }
       }
-    };
+    }
+  };
 
-    const dadosClientes = {
-      labels: ['10 Motives', 'West Wing', 'Joãozinho', 'Maria Moda', 'Loja XP'],
-      datasets: [{
-        label: 'Pedidos',
-        data: [5, 3, 8, 2, 4],
-        backgroundColor: '#00c2c2'
-      }]
-    };
+  // Gráfico de pedidos por cliente
+  const dadosClientes = {
+    labels: dados.clientes.labels,
+    datasets: [{
+      label: 'Pedidos',
+      data: dados.clientes.quantidades,
+      backgroundColor: '#00c2c2'
+    }]
+  };
 
-    const configClientes = {
-      type: 'bar',
-      data: dadosClientes,
-      options: {
-        responsive: true,
-        plugins: {
-          legend: { display: false },
-          title: { display: false }
-        },
-        scales: {
-          y: { beginAtZero: true }
-        }
+  const configClientes = {
+    type: 'bar',
+    data: dadosClientes,
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false }
+      },
+      scales: {
+        y: { beginAtZero: true }
       }
-    };
+    }
+  };
 
-    new Chart(document.getElementById('pecasChart'), configPecas);
-    new Chart(document.getElementById('clientesChart'), configClientes);
+  new Chart(document.getElementById('pecasChart'), configPecas);
+  new Chart(document.getElementById('clientesChart'), configClientes);
+}
+
+carregarGraficos();
