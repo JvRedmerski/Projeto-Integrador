@@ -19,7 +19,10 @@
   </aside>
   <main>
     <header>
-      <input type="text" placeholder="Nº pedido ou nome do cliente" />
+      <form action="{{ url_for('buscar_pedido') }}" method="get" style="display: flex; gap: 10px;">
+        <input type="text" name="termo" placeholder="Nº pedido ou nome do cliente" required />
+        <button type="submit" class="btn">Buscar</button>
+      </form>
       <a href="{{ url_for('novo_pedido') }}">
         <button class="btn">Criar novo pedido</button>
       </a>

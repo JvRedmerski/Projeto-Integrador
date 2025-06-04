@@ -1,4 +1,4 @@
-from flask import Flask, render_template, g
+from flask import Flask, render_template, g, request, redirect, url_for
 import sqlite3
 from datetime import datetime
 
@@ -83,8 +83,61 @@ def dados_dashboard():
 
     return jsonify({"pecas": pecas, "clientes": clientes})
 
+@app.route('/buscar')
+def buscar_pedido():
+    termo = request.args.get("termo")
 
+    db = get_db()
+    cur = db.cursor()
 
+    # 1. Tenta buscar por número do pedido
+    cur.execute("SELECT pedido_numero FROM Pedidos WHERE pedido_numero = ?", (termo,))
+    resultado = cur.fetchone()
+
+    # 2. Se não encontrou, tenta buscar por nome do cliente
+    if not resultado:
+        cur.execute("""
+            SELECT p.pedido_numero
+            FROM Pedidos p
+            JOIN Clientes c ON p.id_cliente = c.id_cliente
+            WHERE c.nome LIKE ?
+            LIMIT 1
+        """, (f"%{termo}%",))
+        resultado = cur.fetchone()
+
+    if resultado:
+        return redirect(f"/pedido/{resultado[0]}")
+    else:
+        return "Pedido não encontrado", 404
+
+@app.route('/pedido/<pedido_numero>')
+def detalhes_pedido(pedido_numero):
+    db = get_db()
+    cur = db.cursor()
+
+    # Buscar cliente e pedido
+    cur.execute("""
+        SELECT c.nome
+        FROM Pedidos p
+        JOIN Clientes c ON p.id_cliente = c.id_cliente
+        WHERE p.pedido_numero = ?
+    """, (pedido_numero,))
+    pedido_info = cur.fetchone()
+
+    if not pedido_info:
+        return "Pedido não encontrado", 404
+
+    nome_cliente = pedido_info[0]
+
+    # Buscar os 3 itens e formas geométricas associadas
+    cur.execute("""
+        SELECT i.item from itens_pedido ip
+        JOIN Itens i ON i.id_item = ip.id_item
+        WHERE ip.pedido_numero = ?
+    """, (pedido_numero,))
+    formas = [linha[0] for linha in cur.fetchall()]
+
+    return render_template("detalhes.html", cliente=nome_cliente, numero=pedido_numero, formas=formas)
 
 if __name__ == '__main__':
     app.run(debug=True)
