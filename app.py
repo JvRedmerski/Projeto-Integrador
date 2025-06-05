@@ -85,30 +85,36 @@ def dados_dashboard():
 
 @app.route('/buscar')
 def buscar_pedido():
-    termo = request.args.get("termo")
+    termo = request.args.get("termo", "").strip()
 
     db = get_db()
     cur = db.cursor()
 
-    # 1. Tenta buscar por número do pedido
-    cur.execute("SELECT pedido_numero FROM Pedidos WHERE pedido_numero = ?", (termo,))
-    resultado = cur.fetchone()
-
-    # 2. Se não encontrou, tenta buscar por nome do cliente
-    if not resultado:
-        cur.execute("""
-            SELECT p.pedido_numero
-            FROM Pedidos p
-            JOIN Clientes c ON p.id_cliente = c.id_cliente
-            WHERE c.nome LIKE ?
-            LIMIT 1
-        """, (f"%{termo}%",))
+    # Tenta buscar por número de pedido (alfa-numérico de 8 caracteres)
+    if len(termo) == 8 and termo.isalnum():
+        cur.execute("SELECT pedido_numero FROM Pedidos WHERE pedido_numero = ?", (termo,))
         resultado = cur.fetchone()
+        if resultado:
+            return redirect(f"/pedido/{resultado[0]}")
 
-    if resultado:
-        return redirect(f"/pedido/{resultado[0]}")
+    # Se não for um número válido, assume que é nome de cliente e filtra a lista
+    cur.execute("""
+        SELECT 
+            'Aberto' AS status,
+            p.pedido_numero,
+            c.nome AS nome_cliente,
+            p.data_pedido
+        FROM Pedidos p
+        JOIN Clientes c ON p.id_cliente = c.id_cliente
+        WHERE c.nome LIKE ?
+    """, (f"%{termo}%",))
+    
+    pedidos = cur.fetchall()
+
+    if pedidos:
+        return render_template("index.html", pedidos=pedidos, cliente=termo)
     else:
-        return "Pedido não encontrado", 404
+        return render_template("index.html", pedidos=[], cliente=termo, mensagem="Nenhum pedido encontrado.")
 
 @app.route('/pedido/<pedido_numero>')
 def detalhes_pedido(pedido_numero):
