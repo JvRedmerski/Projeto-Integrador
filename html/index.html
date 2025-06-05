@@ -20,7 +20,9 @@
   <main>
     <header>
       <form action="{{ url_for('buscar_pedido') }}" method="get" style="display: flex; gap: 10px;">
-        <input type="text" name="termo" placeholder="Nº pedido ou nome do cliente" required />
+        <input type="text" id="clienteInput" name="termo" list="clientes" placeholder="Nome do cliente ou nº do pedido"
+          autocomplete="off" />
+        <datalist id="clientes"></datalist>
         <button type="submit" class="btn">Buscar</button>
       </form>
       <a href="{{ url_for('novo_pedido') }}">
@@ -49,7 +51,8 @@
     </table>
   </main>
 
-  <script src="/js/active.js"></script>
+  <script src="/static/js/active.js"></script>
+  <script src="/static/js/auto-complete.js"></script>
 
 </body>
 

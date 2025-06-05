@@ -160,5 +160,21 @@ def detalhes_pedido(pedido_numero):
 
     return render_template("detalhes.html", cliente=nome_cliente, numero=pedido_numero, itens=itens)
 
+@app.route('/api/clientes')
+def api_clientes():
+    termo = request.args.get("termo", "").strip()
+
+    if not termo:
+        return jsonify([])
+
+    cur = get_db().cursor()
+    cur.execute("""
+        SELECT nome FROM Clientes
+        WHERE nome LIKE ?
+        LIMIT 5
+    """, (f"{termo}%",))
+    nomes = [linha[0] for linha in cur.fetchall()]
+    return jsonify(nomes)
+
 if __name__ == '__main__':
     app.run(debug=True)
