@@ -90,14 +90,28 @@ def buscar_pedido():
     db = get_db()
     cur = db.cursor()
 
-    # Tenta buscar por número de pedido (alfa-numérico de 8 caracteres)
+    # Se nenhum termo for digitado, mostra todos os pedidos (comportamento padrão)
+    if termo == "":
+        cur.execute("""
+            SELECT 
+                'Aberto' AS status,
+                p.pedido_numero,
+                c.nome AS nome_cliente,
+                p.data_pedido
+            FROM Pedidos p
+            JOIN Clientes c ON p.id_cliente = c.id_cliente
+        """)
+        pedidos = cur.fetchall()
+        return render_template("index.html", pedidos=pedidos, cliente=None)
+
+    # Se for um possível número de pedido
     if len(termo) == 8 and termo.isalnum():
         cur.execute("SELECT pedido_numero FROM Pedidos WHERE pedido_numero = ?", (termo,))
         resultado = cur.fetchone()
         if resultado:
             return redirect(f"/pedido/{resultado[0]}")
 
-    # Se não for um número válido, assume que é nome de cliente e filtra a lista
+    # Caso contrário, assume que é nome de cliente
     cur.execute("""
         SELECT 
             'Aberto' AS status,
