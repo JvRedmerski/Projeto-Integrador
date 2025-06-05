@@ -36,6 +36,7 @@
           <th>Pedido #</th>
           <th>Nome do Cliente</th>
           <th>Data pedido</th>
+          <th>Detalhes</th>
         </tr>
       </thead>
       <tbody>
@@ -45,6 +46,11 @@
           <td>{{ pedido_numero }}</td>
           <td>{{ nome_cliente }}</td>
           <td>{{ data_pedido | datetimeformat }}</td>
+          <td>
+            <a href="{{ url_for('detalhes_pedido', pedido_numero=pedido_numero) }}">
+              <button class="btn">Ver detalhes</button>
+            </a>
+          </td>
         </tr>
         {% endfor %}
       </tbody>
