@@ -10,7 +10,8 @@ Este projeto tem como objetivo integrar a **comunicação entre um robô industr
 - ⚙️ **Node-RED** – Fluxos de automação e integração
 - 🤖 **Robô industrial / CLP** – Fonte dos dados e ações automatizadas
 - 🌐 **HTML + JavaScript** – Interface dinâmica para o usuário
-- 🔌 **Protocolos de comunicação industrial** – (Ex: Modbus, MQTT ou HTTP)
+- 🐍 **Python + Flask** - Construir a aplicação WEB
+- 🔌 **Protocolos de comunicação industrial** – (ModBus, ProfiNet e OPC UA)
 
 ---
 
@@ -32,8 +33,8 @@ Criar uma solução **inteligente e visualmente acessível** para operadores con
 ## ✨ Próximos Passos
 
 - [ ] Conectar o CLP ao Node-RED
-- [ ] Desenvolver a lógica de pedidos
-- [ ] Criar e publicar a dashboard
+- [x] Desenvolver a lógica de pedidos
+- [x] Criar e publicar a dashboard
 - [ ] Testes e validação em ambiente real
 
 ---
