@@ -5,51 +5,40 @@ body {
     padding: 40px;
 }
 
-.formas-container {
-    display: flex;
-    justify-content: center;
-    gap: 30px;
-    margin-top: 40px;
+.itens-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 30px;
 }
 
-.forma {
-    width: 120px;
-    height: 120px;
-    background-color: #00c2c2;
+.item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 15px;
+  background: #fff;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  min-width: 180px;
 }
 
-.redonda {
-    border-radius: 50%;
+.svg-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 10px;
 }
 
-.quadrada {
-    /* padrão */
+.item img {
+  display: block;
 }
 
-.hexagonal {
-    width: 104px;
-    height: 60px;
-    background-color: #00c2c2;
-    position: relative;
-}
-
-.hexagonal:before,
-.hexagonal:after {
-    content: "";
-    position: absolute;
-    width: 0;
-    border-left: 52px solid transparent;
-    border-right: 52px solid transparent;
-}
-
-.hexagonal:before {
-    bottom: 100%;
-    border-bottom: 30px solid #00c2c2;
-}
-
-.hexagonal:after {
-    top: 100%;
-    border-top: 30px solid #00c2c2;
+.itens-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 30px;
 }
 
 h1,

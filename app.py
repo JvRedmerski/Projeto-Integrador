@@ -115,29 +115,30 @@ def detalhes_pedido(pedido_numero):
     db = get_db()
     cur = db.cursor()
 
-    # Buscar cliente e pedido
-    cur.execute("""
-        SELECT c.nome
-        FROM Pedidos p
-        JOIN Clientes c ON p.id_cliente = c.id_cliente
-        WHERE p.pedido_numero = ?
-    """, (pedido_numero,))
+    # Buscar id_pedido e id_cliente
+    cur.execute("SELECT pedido_numero, id_cliente FROM Pedidos WHERE pedido_numero = ?", (pedido_numero,))
     pedido_info = cur.fetchone()
 
     if not pedido_info:
         return "Pedido não encontrado", 404
 
-    nome_cliente = pedido_info[0]
+    id_pedido, id_cliente = pedido_info
 
-    # Buscar os 3 itens e formas geométricas associadas
+    # Buscar nome do cliente
+    cur.execute("SELECT nome FROM Clientes WHERE id_cliente = ?", (id_cliente,))
+    cliente_row = cur.fetchone()
+    nome_cliente = cliente_row[0] if cliente_row else "Desconhecido"
+
+    # Buscar itens (forma geométrica é o campo `item`)
     cur.execute("""
-        SELECT i.item from itens_pedido ip
+        SELECT i.item, ip.quantidade
+        FROM Itens_Pedido ip
         JOIN Itens i ON i.id_item = ip.id_item
         WHERE ip.pedido_numero = ?
-    """, (pedido_numero,))
-    formas = [linha[0] for linha in cur.fetchall()]
+    """, (id_pedido,))
+    itens = cur.fetchall()  # Lista de tuplas: (forma_geom, quantidade)
 
-    return render_template("detalhes.html", cliente=nome_cliente, numero=pedido_numero, formas=formas)
+    return render_template("detalhes.html", cliente=nome_cliente, numero=pedido_numero, itens=itens)
 
 if __name__ == '__main__':
     app.run(debug=True)

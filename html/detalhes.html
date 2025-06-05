@@ -1,18 +1,26 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8" />
   <title>Detalhes do Pedido</title>
   <link rel="stylesheet" href="/static/css/detalhes.css">
 </head>
+
 <body>
   <h1>Pedido #{{ numero }}</h1>
   <h2>Cliente: {{ cliente }}</h2>
 
-  <div class="formas-container">
-    {% for forma in formas %}
-      <div class="forma {% if forma == 'redonda' %}redonda{% elif forma == 'quadrada' %}quadrada{% elif forma == 'hexagonal' %}hexagonal{% endif %}"></div>
-    {% endfor %}
+  {% for forma, quantidade in itens %}
+  <div class="item">
+    <div class="svg-row">
+      {% for _ in range(quantidade) %}
+      <img src="{{ url_for('static', filename='svg/' ~ forma ~ '.svg') }}" alt="{{ forma }}" width="60" height="60">
+      {% endfor %}
+    </div>
+    <strong>{{ forma }}</strong>
   </div>
+  {% endfor %}
 </body>
+
 </html>
