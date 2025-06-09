@@ -1,11 +1,327 @@
 [
     {
+        "id": "0bdcbfbb92e8e12f",
+        "type": "tab",
+        "label": "Pedidos SQLite",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "0c2a3c99c7e43a10",
+        "type": "http in",
+        "z": "0bdcbfbb92e8e12f",
+        "name": "Receber Pedido",
+        "url": "/pedido",
+        "method": "post",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 100,
+        "y": 280,
+        "wires": [
+            [
+                "74061dbb3c22ec8b"
+            ]
+        ]
+    },
+    {
+        "id": "74061dbb3c22ec8b",
+        "type": "json",
+        "z": "0bdcbfbb92e8e12f",
+        "name": "Parse JSON",
+        "property": "payload",
+        "action": "obj",
+        "pretty": false,
+        "x": 270,
+        "y": 280,
+        "wires": [
+            [
+                "8b172b3ab00b345b",
+                "eec5ca02dbccb097",
+                "aa3be72826696712"
+            ]
+        ]
+    },
+    {
+        "id": "8b172b3ab00b345b",
+        "type": "function",
+        "z": "0bdcbfbb92e8e12f",
+        "name": "Preparar INSERT cliente",
+        "func": "if (typeof msg.payload === \"string\") {\n    // Se msg.payload for uma string direta (ex: \"João\")\n    msg.nome = msg.payload;\n} else {\n    // Se msg.payload for um objeto (ex: { nome: \"João\" })\n    // tenta pegar msg.payload.nome, ou coloca \"Desconhecido\" se não existir\n    msg.nome = msg.payload.nome;\n}\n\nmsg.topic = \"INSERT INTO clientes (nome) VALUES ($nome)\";\nmsg.payload = [msg.nome];\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 790,
+        "y": 340,
+        "wires": [
+            [
+                "13ff9b6adfa8a72c"
+            ]
+        ]
+    },
+    {
+        "id": "13ff9b6adfa8a72c",
+        "type": "sqlite",
+        "z": "0bdcbfbb92e8e12f",
+        "mydb": "23892abdd9f1d5ab",
+        "sqlquery": "msg.topic",
+        "sql": "",
+        "name": "Inserir cliente",
+        "x": 1020,
+        "y": 340,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "6b47dcd93fd4f91e",
+        "type": "function",
+        "z": "0bdcbfbb92e8e12f",
+        "name": "Gerar pedido e salvar",
+        "func": "const gerarCodigo = (tam = 8) => {\n    const c = \"ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789\";\n    return Array.from({ length: tam }, () => c[Math.floor(Math.random() * c.length)]).join(\"\");\n};\n\nfunction dataHojeFormatada() {\n    const hoje = new Date();\n\n    const ano = hoje.getFullYear();\n    const mes = String(hoje.getMonth() + 1).padStart(2, '0'); // meses começam do 0\n    const dia = String(hoje.getDate()).padStart(2, '0');\n\n    return `${ano}-${mes}-${dia}`;\n}\n\nconst codigo = gerarCodigo();\nlet data = dataHojeFormatada();\n\nmsg.codigoPedido = codigo;\nmsg.id_cliente = msg.payload[0].id_cliente;\nmsg.topic = \"INSERT INTO pedidos (pedido_numero, id_cliente, data_pedido) VALUES ($codigoPedido, $id_cliente, $data)\";\nmsg.payload = [msg.codigoPedido, msg.id_cliente, data];\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 660,
+        "y": 580,
+        "wires": [
+            [
+                "e2702e24032d72b6",
+                "5168f5151900f1d5",
+                "0bf3bbb3bc4e71fc"
+            ]
+        ]
+    },
+    {
+        "id": "e2702e24032d72b6",
+        "type": "sqlite",
+        "z": "0bdcbfbb92e8e12f",
+        "mydb": "23892abdd9f1d5ab",
+        "sqlquery": "msg.topic",
+        "sql": "",
+        "name": "Inserir pedido",
+        "x": 900,
+        "y": 580,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "a453401c3b1ae9f0",
+        "type": "sqlite",
+        "z": "0bdcbfbb92e8e12f",
+        "mydb": "23892abdd9f1d5ab",
+        "sqlquery": "msg.topic",
+        "sql": "",
+        "name": "Inserir itens",
+        "x": 1510,
+        "y": 420,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "eec5ca02dbccb097",
+        "type": "function",
+        "z": "0bdcbfbb92e8e12f",
+        "name": "SELECT Nome",
+        "func": "if (typeof msg.payload === \"string\") {\n    // Se msg.payload for uma string direta (ex: \"João\")\n    msg.nome = msg.payload;\n} else {\n    // Se msg.payload for um objeto (ex: { nome: \"João\" })\n    // tenta pegar msg.payload.nome, ou coloca \"Desconhecido\" se não existir\n    msg.nome = msg.payload.nome;\n}\nmsg.topic = \"SELECT id_cliente FROM Clientes WHERE nome = $nome\";\nmsg.payload = [msg.nome];  \nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 220,
+        "y": 580,
+        "wires": [
+            [
+                "64d7f59997319598"
+            ]
+        ]
+    },
+    {
+        "id": "64d7f59997319598",
+        "type": "sqlite",
+        "z": "0bdcbfbb92e8e12f",
+        "mydb": "23892abdd9f1d5ab",
+        "sqlquery": "msg.topic",
+        "sql": "",
+        "name": "SELECT Nome",
+        "x": 440,
+        "y": 580,
+        "wires": [
+            [
+                "6b47dcd93fd4f91e"
+            ]
+        ]
+    },
+    {
+        "id": "5168f5151900f1d5",
+        "type": "join",
+        "z": "0bdcbfbb92e8e12f",
+        "name": "JOIN Itens_Pedido",
+        "mode": "custom",
+        "build": "array",
+        "property": "payload",
+        "propertyType": "msg",
+        "key": "payload",
+        "joiner": "\\n",
+        "joinerType": "str",
+        "useparts": false,
+        "accumulate": false,
+        "timeout": "",
+        "count": "2",
+        "reduceRight": false,
+        "reduceExp": "",
+        "reduceInit": "",
+        "reduceInitType": "",
+        "reduceFixup": "",
+        "x": 1000,
+        "y": 420,
+        "wires": [
+            [
+                "149044635898781c",
+                "d12a4b316469bef7"
+            ]
+        ]
+    },
+    {
+        "id": "9a387fa2133dfb14",
+        "type": "debug",
+        "z": "0bdcbfbb92e8e12f",
+        "name": "debug 1",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1500,
+        "y": 500,
+        "wires": []
+    },
+    {
+        "id": "aa3be72826696712",
+        "type": "function",
+        "z": "0bdcbfbb92e8e12f",
+        "name": "Preparar INSERT cliente",
+        "func": "msg.payload = [msg.payload.peca1, msg.payload.peca2, msg.payload.peca3];\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 610,
+        "y": 460,
+        "wires": [
+            [
+                "5168f5151900f1d5"
+            ]
+        ]
+    },
+    {
+        "id": "149044635898781c",
+        "type": "function",
+        "z": "0bdcbfbb92e8e12f",
+        "name": "Preparar Itens_Pedido",
+        "func": "const nomes = msg.payload[0]; // nomes dos itens (pode haver repetidos)\nconst info_pedido = msg.payload[1];\n\nconst codigo_pedido = info_pedido[0];\n\n// Mapeamento nome → id_item\nconst mapaItens = {\n  \"quadrada\": 1,\n  \"hexagonal\": 2,\n  \"redonda\": 3\n};\n\n// Agrupar e contar quantidades\nconst contagem = {};\nfor (const nome of nomes) {\n  const nomeLower = nome.toLowerCase();\n  if (mapaItens[nomeLower]) {\n    contagem[nomeLower] = (contagem[nomeLower] || 0) + 1;\n  }\n}\n\n// Criar array de mensagens formatadas\nconst resultado = Object.entries(contagem).map(([nome, quantidade]) => {\n  const id_item = mapaItens[nome];\n  return {\n    topic: \"INSERT INTO Itens_Pedido (pedido_numero, id_item, quantidade) VALUES ($codigo_pedido, $id_item, $quantidade)\",\n    payload: [codigo_pedido, id_item, quantidade]\n  };\n});\n\n// Retornar diretamente o array no formato que o Node-RED espera\nreturn [resultado];\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1260,
+        "y": 420,
+        "wires": [
+            [
+                "9a387fa2133dfb14",
+                "a453401c3b1ae9f0"
+            ]
+        ]
+    },
+    {
+        "id": "207253c27c5d669a",
+        "type": "telegram receiver",
+        "z": "0bdcbfbb92e8e12f",
+        "name": "manufaturvaAvancada",
+        "bot": "321c869846817278",
+        "saveDataDir": "",
+        "filterCommands": false,
+        "x": 140,
+        "y": 40,
+        "wires": [
+            [
+                "ed9132cbc765c80e"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "f7bcddba87d3ebda",
+        "type": "telegram sender",
+        "z": "0bdcbfbb92e8e12f",
+        "name": "",
+        "bot": "321c869846817278",
+        "haserroroutput": false,
+        "outputs": 1,
+        "x": 590,
+        "y": 40,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "ed9132cbc765c80e",
+        "type": "function",
+        "z": "0bdcbfbb92e8e12f",
+        "name": "Controle de pedido",
+        "func": "let chatId = msg.payload.chatId;\nlet texto = msg.payload.content;\nlet estado = flow.get(chatId + \"_estado\");\nlet pedido = flow.get(chatId + \"_pedido\") || [];\n\nif (texto === \"/start\") {\n    flow.set(chatId + \"_estado\", \"awaiting_name\");\n    flow.set(chatId + \"_pedido\", []);\n    \n    msg.payload = {\n        chatId,\n        type: \"message\",\n        content: \"Pedido iniciado! Qual é o seu nome?\"\n    };\n    return msg;\n}\n\nif (estado === \"awaiting_name\") {\n    flow.set(chatId + \"_nome\", texto);\n    flow.set(chatId + \"_estado\", \"awaiting_item_1\");\n    \n    msg.payload = {\n        chatId,\n        type: \"message\",\n        content: `Olá, ${texto}! Escolha a primeira peça:`,\n        options: {\n            reply_markup: {\n                inline_keyboard: [\n                    [{ text: \"Redonda\", callback_data: \"Redonda\" }],\n                    [{ text: \"Hexagonal\", callback_data: \"Hexagonal\" }],\n                    [{ text: \"Quadrada\", callback_data: \"Quadrada\" }]\n                ]\n            }\n        }\n    };\n    return msg;\n}\n\nreturn null; // ignora outras mensagens\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 370,
+        "y": 40,
+        "wires": [
+            [
+                "f7bcddba87d3ebda"
+            ]
+        ]
+    },
+    {
+        "id": "973c00cc34a8456e",
+        "type": "telegram event",
+        "z": "0bdcbfbb92e8e12f",
+        "name": "",
+        "bot": "321c869846817278",
+        "event": "callback_query",
+        "autoanswer": false,
+        "x": 120,
+        "y": 120,
+        "wires": [
+            [
+                "c269a0291bfb85dd"
+            ]
+        ]
+    },
+    {
         "id": "c269a0291bfb85dd",
         "type": "function",
         "z": "0bdcbfbb92e8e12f",
         "name": "Click pedido",
-        "func": "node.warn(\"Payload recebido:\");\nnode.warn(JSON.stringify(msg.payload));\n\nlet chatId = msg.payload.chatId;\nlet escolha = msg.payload.content;\nlet estado = flow.get(chatId + \"_estado\");\nlet pedido = flow.get(chatId + \"_pedido\") || [];\n\npedido.push(escolha);\nflow.set(chatId + \"_pedido\", pedido);\n\nlet proximaEtapa = pedido.length;\n\nif (proximaEtapa === 1) {\n    flow.set(chatId + \"_estado\", \"awaiting_item_2\");\n} else if (proximaEtapa === 2) {\n    flow.set(chatId + \"_estado\", \"awaiting_item_3\");\n} else if (proximaEtapa === 3) {\n    flow.set(chatId + \"_estado\", \"completed\");\n\n    let nome = flow.get(chatId + \"_nome\");\n\n    msg.payload = {\n        chatId,\n        type: \"message\",\n        content: `Obrigado, ${nome}! Seu pedido entrará em produção em breve!\\n\\nPeças escolhidas:\\n- ${pedido[0]}\\n- ${pedido[1]}\\n- ${pedido[2]}`\n    };\n\n    // ✅ Limpeza depois de usar os dados\n    flow.set(chatId + \"_estado\", null);\n    flow.set(chatId + \"_pedido\", []);\n    flow.set(chatId + \"_nome\", null);\n\n    return msg;\n}\n\nmsg.payload = {\n    chatId,\n    type: \"message\",\n    content: \"Escolha a próxima peça:\",\n    options: {\n        reply_markup: {\n            inline_keyboard: [\n                [{ text: \"Redonda\", callback_data: \"Redonda\" }],\n                [{ text: \"Hexagonal\", callback_data: \"Hexagonal\" }],\n                [{ text: \"Quadrada\", callback_data: \"Quadrada\" }]\n            ]\n        }\n    }\n};\n\nreturn msg;\n",
-        "outputs": 1,
+        "func": "//node.warn(\"Payload recebido:\");\n//node.warn(JSON.stringify(msg.payload));\n\nlet chatId = msg.payload.chatId;\nlet escolha = msg.payload.content;\nlet estado = flow.get(chatId + \"_estado\");\nlet pedido = flow.get(chatId + \"_pedido\") || [];\n\npedido.push(escolha);\nflow.set(chatId + \"_pedido\", pedido);\n\nlet proximaEtapa = pedido.length;\n\nif (proximaEtapa === 1) {\n    flow.set(chatId + \"_estado\", \"awaiting_item_2\");\n} else if (proximaEtapa === 2) {\n    flow.set(chatId + \"_estado\", \"awaiting_item_3\");\n} else if (proximaEtapa === 3) {\n    flow.set(chatId + \"_estado\", \"completed\");\n\n    let nome = flow.get(chatId + \"_nome\");\n\n    // Mensagem de agradecimento (saída 1)\n    let msgBot = {\n        payload: {\n            chatId,\n            type: \"message\",\n            content: `Obrigado, ${nome}! Seu pedido entrará em produção em breve!\\n\\nPeças escolhidas:\\n- ${pedido[0]}\\n- ${pedido[1]}\\n- ${pedido[2]}`\n        }\n    };\n\n    // Mensagem para processamento (saída 2)\n    let msgInterna = {\n        cliente: nome,\n        chatId: chatId,\n        pedido: pedido\n    };\n\n    return [msgBot, msgInterna];\n}\n\n// Caso ainda esteja coletando peças, enviar a próxima pergunta\nmsg.payload = {\n    chatId,\n    type: \"message\",\n    content: \"Escolha a próxima peça:\",\n    options: {\n        reply_markup: {\n            inline_keyboard: [\n                [{ text: \"Redonda\", callback_data: \"Redonda\" }],\n                [{ text: \"Hexagonal\", callback_data: \"Hexagonal\" }],\n                [{ text: \"Quadrada\", callback_data: \"Quadrada\" }]\n            ]\n        }\n    }\n};\n\nreturn [msg, null];\n",
+        "outputs": 2,
         "timeout": 0,
         "noerr": 0,
         "initialize": "",
@@ -15,9 +331,114 @@
         "y": 120,
         "wires": [
             [
-                "41946784d6850fcd",
+                "41946784d6850fcd"
+            ],
+            [
                 "f97c4518999b93e1"
             ]
         ]
+    },
+    {
+        "id": "41946784d6850fcd",
+        "type": "telegram sender",
+        "z": "0bdcbfbb92e8e12f",
+        "name": "",
+        "bot": "321c869846817278",
+        "haserroroutput": false,
+        "outputs": 1,
+        "x": 590,
+        "y": 120,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "f97c4518999b93e1",
+        "type": "function",
+        "z": "0bdcbfbb92e8e12f",
+        "name": "Payload com dados do pedido",
+        "func": "let chatId = msg.chatId;\nlet nome = msg.cliente;\nlet pedido = msg.pedido; // Deve conter exatamente 3 itens\n\nlet msgNome = {\n    payload: nome\n};\n\nlet msgItens = {\n    payload: {\n        peca1: pedido[0],\n        peca2: pedido[1],\n        peca3: pedido[2]\n    }\n};\n\nreturn [msgNome, msgItens];\n",
+        "outputs": 2,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 530,
+        "y": 200,
+        "wires": [
+            [
+                "8b172b3ab00b345b",
+                "eec5ca02dbccb097"
+            ],
+            [
+                "aa3be72826696712"
+            ]
+        ]
+    },
+    {
+        "id": "d12a4b316469bef7",
+        "type": "debug",
+        "z": "0bdcbfbb92e8e12f",
+        "name": "debug 5",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1200,
+        "y": 340,
+        "wires": []
+    },
+    {
+        "id": "0bf3bbb3bc4e71fc",
+        "type": "debug",
+        "z": "0bdcbfbb92e8e12f",
+        "name": "debug 2",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 880,
+        "y": 680,
+        "wires": []
+    },
+    {
+        "id": "23892abdd9f1d5ab",
+        "type": "sqlitedb",
+        "db": "C:\\Users\\JV\\Desktop\\Integrative Project\\Projeto-Integrador\\Pedidos.db",
+        "mode": "READWRITE"
+    },
+    {
+        "id": "321c869846817278",
+        "type": "telegram bot",
+        "botname": "manufaturaAvancada_bot",
+        "usernames": "",
+        "chatids": "",
+        "baseapiurl": "",
+        "testenvironment": false,
+        "updatemode": "polling",
+        "pollinterval": 300,
+        "usesocks": false,
+        "sockshost": "",
+        "socksprotocol": "socks5",
+        "socksport": 6667,
+        "socksusername": "anonymous",
+        "sockspassword": "",
+        "bothost": "",
+        "botpath": "",
+        "localbothost": "0.0.0.0",
+        "localbotport": 8443,
+        "publicbotport": 8443,
+        "privatekey": "",
+        "certificate": "",
+        "useselfsignedcertificate": false,
+        "sslterminated": false,
+        "verboselogging": false
     }
 ]
