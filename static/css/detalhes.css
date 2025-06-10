@@ -1,8 +1,21 @@
+*{
+  padding: 0px;
+  margin: 0px;
+  box-sizing: border-box;
+}
+
 body {
     font-family: 'Inter', sans-serif;
     background: #f4f4f4;
     text-align: center;
-    padding: 40px;
+}
+
+.header {
+    width: 100%;
+    background-image: url("/static/img/header_bg.png");
+    background-size: cover;
+    background-position: center;
+    padding: 0.8rem 2rem;
 }
 
 .itens-container {
@@ -10,7 +23,9 @@ body {
   flex-direction: column;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 20px;
+  align-items: center;
+  gap: 35px;
+  margin: 20px;
 }
 
 .forma-item {
@@ -22,7 +37,7 @@ body {
   background: white;
   border-radius: 10px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-  min-width: 90px;
+  min-width: 200px;
 }
 
 .forma-label {
@@ -33,5 +48,18 @@ body {
 
 h1,
 h2 {
-    margin: 0.5em;
+    margin: 1rem;
+}
+
+.voltar-btn {
+    display: inline-block;
+    font-size: 1.2rem;
+    margin-top: 2%;
+    padding: 1.2rem 2.4rem;
+    background-color: #00c4cc;
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    border-radius: 20px;
+    text-align: center;
 }
