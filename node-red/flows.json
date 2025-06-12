@@ -35,9 +35,10 @@
         "y": 280,
         "wires": [
             [
+                "95e7c496d6a8d829",
                 "8b172b3ab00b345b",
-                "eec5ca02dbccb097",
-                "aa3be72826696712"
+                "aa3be72826696712",
+                "eec5ca02dbccb097"
             ]
         ]
     },
@@ -196,7 +197,7 @@
         "type": "debug",
         "z": "0bdcbfbb92e8e12f",
         "name": "debug 1",
-        "active": true,
+        "active": false,
         "tosidebar": true,
         "console": false,
         "tostatus": false,
@@ -212,18 +213,19 @@
         "type": "function",
         "z": "0bdcbfbb92e8e12f",
         "name": "Preparar INSERT cliente",
-        "func": "msg.payload = [msg.payload.peca1, msg.payload.peca2, msg.payload.peca3];\nreturn msg;",
+        "func": "msg.payload = [\n    msg.payload.pino1,\n    msg.payload.pino2,\n    msg.payload.pino3\n];\nreturn msg;\n",
         "outputs": 1,
         "timeout": "",
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 610,
+        "x": 550,
         "y": 460,
         "wires": [
             [
-                "5168f5151900f1d5"
+                "5168f5151900f1d5",
+                "52eeda6116456fac"
             ]
         ]
     },
@@ -232,7 +234,7 @@
         "type": "function",
         "z": "0bdcbfbb92e8e12f",
         "name": "Preparar Itens_Pedido",
-        "func": "const nomes = msg.payload[0]; // nomes dos itens (pode haver repetidos)\nconst info_pedido = msg.payload[1];\n\nconst codigo_pedido = info_pedido[0];\n\n// Mapeamento nome → id_item\nconst mapaItens = {\n  \"quadrada\": 1,\n  \"hexagonal\": 2,\n  \"redonda\": 3\n};\n\n// Agrupar e contar quantidades\nconst contagem = {};\nfor (const nome of nomes) {\n  const nomeLower = nome.toLowerCase();\n  if (mapaItens[nomeLower]) {\n    contagem[nomeLower] = (contagem[nomeLower] || 0) + 1;\n  }\n}\n\n// Criar array de mensagens formatadas\nconst resultado = Object.entries(contagem).map(([nome, quantidade]) => {\n  const id_item = mapaItens[nome];\n  return {\n    topic: \"INSERT INTO Itens_Pedido (pedido_numero, id_item, quantidade) VALUES ($codigo_pedido, $id_item, $quantidade)\",\n    payload: [codigo_pedido, id_item, quantidade]\n  };\n});\n\n// Retornar diretamente o array no formato que o Node-RED espera\nreturn [resultado];\n",
+        "func": "const nomesPorPino = msg.payload[0]; // ex: [ [\"redonda\", \"hexagonal\", \"quadrada\"], ... ]\nconst info_pedido = msg.payload[1];  // ex: [123] → número do pedido\n\nconst codigo_pedido = info_pedido[0];\n\nconst mapaItens = {\n  \"quadrada\": 1,\n  \"hexagonal\": 2,\n  \"redonda\": 3\n};\n\nconst resultado = [];\n\n// Loop pelos pinos (índice de 0 a 2)\nfor (let i = 0; i < nomesPorPino.length; i++) {\n  const nomes = nomesPorPino[i]; // [\"redonda\", \"hexagonal\", \"quadrada\"]\n  const contagem = {};\n\n  // Contar itens por nome\n  for (const nome of nomes) {\n    const nomeLower = nome.toLowerCase();\n    if (mapaItens[nomeLower]) {\n      contagem[nomeLower] = (contagem[nomeLower] || 0) + 1;\n    }\n  }\n\n  // Criar inserts para este pino\n  for (const [nome, quantidade] of Object.entries(contagem)) {\n    const id_item = mapaItens[nome];\n    const pino = i + 1; // Pino 1, 2, 3\n\n    resultado.push({\n      topic: \"INSERT INTO Itens_Pedido (pedido_numero, id_item, quantidade, pino) VALUES ($codigo_pedido, $id_item, $quantidade, $pino)\",\n      payload: [codigo_pedido, id_item, quantidade, pino]\n    });\n  }\n}\n\nreturn [resultado];",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -406,6 +408,38 @@
         "statusType": "auto",
         "x": 880,
         "y": 680,
+        "wires": []
+    },
+    {
+        "id": "95e7c496d6a8d829",
+        "type": "debug",
+        "z": "0bdcbfbb92e8e12f",
+        "name": "debug 3",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 280,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "52eeda6116456fac",
+        "type": "debug",
+        "z": "0bdcbfbb92e8e12f",
+        "name": "debug 4",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 750,
+        "y": 500,
         "wires": []
     },
     {

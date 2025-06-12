@@ -1,4 +1,4 @@
-from flask import Flask, render_template, g, request, redirect, url_for
+from flask import Flask, render_template, g, request, redirect, url_for, jsonify
 import sqlite3
 from datetime import datetime
 
@@ -47,8 +47,6 @@ def dashboard():
 @app.route('/novo-pedido')
 def novo_pedido():
      return render_template('user_form.html')
-
-from flask import jsonify, request
 
 @app.route('/api/dados_dashboard')
 def dados_dashboard():
@@ -151,12 +149,18 @@ def detalhes_pedido(pedido_numero):
 
     # Buscar itens (forma geométrica é o campo `item`)
     cur.execute("""
-        SELECT i.item, ip.quantidade
+        SELECT ip.pino, i.item, ip.quantidade
         FROM Itens_Pedido ip
         JOIN Itens i ON i.id_item = ip.id_item
         WHERE ip.pedido_numero = ?
     """, (id_pedido,))
-    itens = cur.fetchall()  # Lista de tuplas: (forma_geom, quantidade)
+    itens_raw = cur.fetchall() # Lista de tuplas: (forma_geom, quantidade)
+    
+    itens = {}
+    for pino, item, quantidade in itens_raw:
+        if pino not in itens:
+            itens[pino] = []
+        itens[pino].append((item, quantidade))
 
     return render_template("detalhes.html", cliente=nome_cliente, numero=pedido_numero, itens=itens)
 

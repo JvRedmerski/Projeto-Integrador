@@ -8,22 +8,30 @@
 </head>
 
 <body>
-  
+
   <div class="header"></div>
 
   <h1>Pedido #{{ numero }}</h1>
   <h2>Cliente: {{ cliente }}</h2>
 
   <div class="itens-container">
-    {% for forma, quantidade in itens %}
-    {% for _ in range(quantidade) %}
-    <div class="forma-item">
-      <img src="{{ url_for('static', filename='svg/' ~ forma ~ '.svg') }}" alt="{{ forma }}" width="80" height="80">
-      <div class="forma-label">{{ forma }}</div>
+    {% for pino in itens.keys()|sort %}
+    <div class="pino-bloco">
+      <h3>Pino {{ pino }}</h3>
+      <div class="formas-por-pino">
+        {% for forma, quantidade in itens[pino] %}
+        {% for _ in range(quantidade) %}
+        <div class="forma-item">
+          <img src="{{ url_for('static', filename='svg/' ~ forma ~ '.svg') }}" alt="{{ forma }}" width="80" height="80">
+          <div class="forma-label">{{ forma }}</div>
+        </div>
+        {% endfor %}
+        {% endfor %}
+      </div>
     </div>
     {% endfor %}
-    {% endfor %}
   </div>
+
 
   <a href="{{ url_for('pedidos') }}" class="voltar-btn">Voltar para Pedidos</a>
 

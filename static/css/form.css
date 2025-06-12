@@ -1,91 +1,130 @@
-*{
-    box-sizing: border-box;
-    overflow: hidden;
+* {
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
-html{
-    overflow-x: hidden;
+html {
+  overflow-x: hidden;
 }
 
 body {
-    margin: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f5f5f5;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    overflow-x: hidden;
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f5f5f5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-x: hidden;
 }
 
 .header {
-    width: 100%;
-    background-image: url("/static/img/header_bg.png");
-    background-size: cover;
-    background-position: center;
-    padding: 0.8rem 2rem;
+  width: 100%;
+  background-image: url("/static/img/header_bg.png");
+  background-size: cover;
+  background-position: center;
+  padding: 0.8rem 2rem;
 }
 
 .main-container {
-  height: calc(100vh - 60px); /* ocupa o restante da tela */
-  width: 50%;
+  height: auto;
+  width: 90%; /* aumentada para permitir layout horizontal */
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
   background-color: #f5f5f5;
+  padding-bottom: 2rem;
 }
+
 .pedido-form {
-    background-color: white;
-    width: 100%;
-    max-width: 400px;
-    margin-top: 2rem;
-    padding: 2rem;
-    border-radius: 12px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  background-color: white;
+  width: 100%; /* removido max-width */
+  margin-top: 1rem;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
 }
 
 .pedido-form h2 {
-    text-align: center;
-    margin-bottom: 1.5rem;
+  text-align: center;
+  margin-top: -2%;
 }
 
 input[type="text"] {
-    width: 100%;
-    padding: 0.5rem;
-    border: 1px solid #ccc;
-    border-radius: 6px;
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
 }
 
 label {
-    display: block;
-    margin: 1rem 0 0.5rem;
+  display: block;
+  margin: 1rem 0 0.5rem;
 }
 
 select {
-    width: 100%;
-    padding: 0.5rem;
-    border: 1px solid #ccc;
-    border-radius: 6px;
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
 }
 
 button[type="submit"] {
-    width: 100%;
-    margin-top: 2rem;
-    padding: 0.75rem;
-    background-color: #e0e0e0;
-    border: none;
-    border-radius: 6px;
-    font-weight: bold;
-    cursor: pointer;
+  width: 100%;
+  margin-top: 2rem;
+  padding: 0.75rem;
+  background-color: #e0e0e0;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
 }
 
 .voltar-btn {
-    display: inline-block;
-    margin-top: -2%;
-    padding: 0.6rem 1.2rem;
-    background-color: #00c4cc;
-    color: white;
-    text-decoration: none;
-    font-weight: bold;
-    border-radius: 20px;
-    text-align: center;
+  display: inline-block;
+  padding: 0.6rem 1.2rem;
+  margin-top: -1%;
+  background-color: #00c4cc;
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+  border-radius: 20px;
+  text-align: center;
+}
+
+/* Estilização dos fieldsets para os pinos */
+fieldset {
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 1rem;
+  margin-top: 1.5rem;
+}
+
+legend {
+  font-weight: bold;
+  padding: 0 0.5rem;
+}
+
+/* Container com layout horizontal dos pinos */
+.pinos-container {
+  display: flex;
+  justify-content: space-between;
+  gap: 1.5rem;
+  flex-wrap: nowrap; /* impede quebra de linha */
+  margin-top: 1rem;
+}
+
+/* Estilo dos fieldsets dentro do container */
+.pinos-container fieldset {
+  flex: 1;
+  min-width: 250px;
+  max-width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 1rem;
+  background-color: #f9f9f9;
+}
+
+.pinos-container legend {
+  font-weight: bold;
+  margin-bottom: 0.5rem;
 }
