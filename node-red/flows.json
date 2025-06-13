@@ -322,7 +322,7 @@
         "type": "function",
         "z": "0bdcbfbb92e8e12f",
         "name": "Click pedido",
-        "func": "//node.warn(\"Payload recebido:\");\n//node.warn(JSON.stringify(msg.payload));\n\nlet chatId = msg.payload.chatId;\nlet escolha = msg.payload.content;\nlet estado = flow.get(chatId + \"_estado\");\nlet pedido = flow.get(chatId + \"_pedido\") || [];\n\npedido.push(escolha);\nflow.set(chatId + \"_pedido\", pedido);\n\nlet proximaEtapa = pedido.length;\n\nif (proximaEtapa === 1) {\n    flow.set(chatId + \"_estado\", \"awaiting_item_2\");\n} else if (proximaEtapa === 2) {\n    flow.set(chatId + \"_estado\", \"awaiting_item_3\");\n} else if (proximaEtapa === 3) {\n    flow.set(chatId + \"_estado\", \"completed\");\n\n    let nome = flow.get(chatId + \"_nome\");\n\n    // Mensagem de agradecimento (saída 1)\n    let msgBot = {\n        payload: {\n            chatId,\n            type: \"message\",\n            content: `Obrigado, ${nome}! Seu pedido entrará em produção em breve!\\n\\nPeças escolhidas:\\n- ${pedido[0]}\\n- ${pedido[1]}\\n- ${pedido[2]}`\n        }\n    };\n\n    // Mensagem para processamento (saída 2)\n    let msgInterna = {\n        cliente: nome,\n        chatId: chatId,\n        pedido: pedido\n    };\n\n    return [msgBot, msgInterna];\n}\n\n// Caso ainda esteja coletando peças, enviar a próxima pergunta\nmsg.payload = {\n    chatId,\n    type: \"message\",\n    content: \"Escolha a próxima peça:\",\n    options: {\n        reply_markup: {\n            inline_keyboard: [\n                [{ text: \"Redonda\", callback_data: \"Redonda\" }],\n                [{ text: \"Hexagonal\", callback_data: \"Hexagonal\" }],\n                [{ text: \"Quadrada\", callback_data: \"Quadrada\" }]\n            ]\n        }\n    }\n};\n\nreturn [msg, null];\n",
+        "func": "const chatId = msg.payload.chatId;\nconst escolha = msg.payload.content;\nconst nome = flow.get(chatId + \"_nome\") || \"Usuário\";\n\n// Valida escolha recebida\nconst validas = [\"Redonda\", \"Hexagonal\", \"Quadrada\"];\nif (!validas.includes(escolha)) {\n    node.warn(`Escolha inválida recebida: ${escolha}`);\n    return [null, null];\n}\n\n// Inicializa estado e pedidos\nlet estado = flow.get(chatId + \"_estado\") || { pinoAtual: 1, etapa: 0 };\nif (typeof estado !== \"object\" || ![1, 2, 3].includes(estado.pinoAtual) || typeof estado.etapa !== \"number\") {\n    node.warn(\"Estado corrompido. Reinicializando.\");\n    estado = { pinoAtual: 1, etapa: 0 };\n}\n\nlet pedidos = flow.get(chatId + \"_pedidos\") || { pino1: [], pino2: [], pino3: [] };\nif (!Array.isArray(pedidos.pino1) || !Array.isArray(pedidos.pino2) || !Array.isArray(pedidos.pino3)) {\n    node.warn(\"Pedidos corrompidos. Reinicializando.\");\n    pedidos = { pino1: [], pino2: [], pino3: [] };\n}\n\n// Debug logs\nnode.warn(`Chat ID: ${chatId}`);\nnode.warn(`Escolha recebida: ${escolha}`);\nnode.warn(`Estado atual: ${JSON.stringify(estado)}`);\nnode.warn(`Pedidos atuais: ${JSON.stringify(pedidos)}`);\n\n// Adiciona a peça ao pino atual\nconst pinoKey = `pino${estado.pinoAtual}`;\nif (!Array.isArray(pedidos[pinoKey])) {\n    node.warn(`Pino ${pinoKey} não é um array. Inicializando.`);\n    pedidos[pinoKey] = [];\n}\npedidos[pinoKey].push(escolha);\nestado.etapa += 1;\n\n// Salva estado e pedidos\nflow.set(chatId + \"_estado\", estado);\nflow.set(chatId + \"_pedidos\", pedidos);\n\n// Se completou 3 peças no pino atual\nif (estado.etapa === 3) {\n    const confirmacaoPino = {\n        payload: {\n            chatId,\n            type: \"message\",\n            content: `✅ Peças escolhidas para o pino ${estado.pinoAtual}:\\n- ${pedidos[pinoKey].join(\"\\n- \")}`\n        }\n    };\n\n    estado.pinoAtual += 1;\n    estado.etapa = 0;\n\n    // Se todos os pinos foram preenchidos\n    if (estado.pinoAtual > 3) {\n        const mensagemFinal = {\n            payload: {\n                chatId,\n                type: \"message\",\n                content: `🎉 Obrigado, ${nome}! Seu pedido foi registrado:\\n\\n🧩 Pino 1: ${pedidos.pino1.join(\", \")}\\n🧩 Pino 2: ${pedidos.pino2.join(\", \")}\\n🧩 Pino 3: ${pedidos.pino3.join(\", \")}`\n            }\n        };\n\n        const mensagemInterna = {\n            cliente: nome,\n            chatId,\n            payload: {\n                pino1: pedidos.pino1,\n                pino2: pedidos.pino2,\n                pino3: pedidos.pino3\n            }\n        };\n\n        node.warn(\"Pedido finalizado. Dados enviados internamente:\");\n        node.warn(JSON.stringify(mensagemInterna));\n\n        // Limpa estado e pedidos\n        flow.set(chatId + \"_estado\", null);\n        flow.set(chatId + \"_pedidos\", null);\n\n        return [[confirmacaoPino, mensagemFinal], mensagemInterna];\n    }\n\n    // Próximo pino\n    flow.set(chatId + \"_estado\", estado);\n    flow.set(chatId + \"_pedidos\", pedidos);\n\n    const novaPergunta = {\n        payload: {\n            chatId,\n            type: \"message\",\n            content: `Vamos montar o pino ${estado.pinoAtual}. Escolha a primeira peça:`,\n            options: {\n                reply_markup: {\n                    inline_keyboard: [\n                        [{ text: \"Redonda\", callback_data: \"Redonda\" }],\n                        [{ text: \"Hexagonal\", callback_data: \"Hexagonal\" }],\n                        [{ text: \"Quadrada\", callback_data: \"Quadrada\" }]\n                    ]\n                }\n            }\n        }\n    };\n\n    return [[confirmacaoPino, novaPergunta], null];\n}\n\n// Ainda há peças pendentes no pino atual\nmsg.payload = {\n    chatId,\n    type: \"message\",\n    content: `Escolha a próxima peça para o pino ${estado.pinoAtual}:`,\n    options: {\n        reply_markup: {\n            inline_keyboard: [\n                [{ text: \"Redonda\", callback_data: \"Redonda\" }],\n                [{ text: \"Hexagonal\", callback_data: \"Hexagonal\" }],\n                [{ text: \"Quadrada\", callback_data: \"Quadrada\" }]\n            ]\n        }\n    }\n};\n\nreturn [msg, null];",
         "outputs": 2,
         "timeout": 0,
         "noerr": 0,
@@ -333,10 +333,12 @@
         "y": 120,
         "wires": [
             [
-                "41946784d6850fcd"
+                "41946784d6850fcd",
+                "402bf3d626841810"
             ],
             [
-                "f97c4518999b93e1"
+                "f97c4518999b93e1",
+                "15ce6e702d84a4a4"
             ]
         ]
     },
@@ -359,7 +361,7 @@
         "type": "function",
         "z": "0bdcbfbb92e8e12f",
         "name": "Payload com dados do pedido",
-        "func": "let chatId = msg.chatId;\nlet nome = msg.cliente;\nlet pedido = msg.pedido; // Deve conter exatamente 3 itens\n\nlet msgNome = {\n    payload: nome\n};\n\nlet msgItens = {\n    payload: {\n        peca1: pedido[0],\n        peca2: pedido[1],\n        peca3: pedido[2]\n    }\n};\n\nreturn [msgNome, msgItens];\n",
+        "func": "const chatId = msg.chatId;\nconst nome = msg.cliente;\nconst payload = msg.payload || {};\n\n// Valida a estrutura do payload\nif (!Array.isArray(payload.pino1) || !Array.isArray(payload.pino2) || !Array.isArray(payload.pino3)) {\n    node.warn(`Payload inválido. Estrutura esperada: { pino1: [], pino2: [], pino3: [] }. Recebido: ${JSON.stringify(payload)}`);\n    return [null, null];\n}\n\nif (payload.pino1.length !== 3 || payload.pino2.length !== 3 || payload.pino3.length !== 3) {\n    node.warn(`Cada pino deve conter exatamente 3 peças. Recebido: pino1=${payload.pino1.length}, pino2=${payload.pino2.length}, pino3=${payload.pino3.length}`);\n    return [null, null];\n}\n\n// Debug logs\nnode.warn(`Chat ID: ${chatId}`);\nnode.warn(`Nome: ${nome}`);\nnode.warn(`Pedidos recebidos: ${JSON.stringify(payload)}`);\n\n// Prepara mensagens de saída\nconst msgNome = {\n    payload: nome\n};\n\nconst msgItens = {\n    payload: {\n        pino1: payload.pino1,\n        pino2: payload.pino2,\n        pino3: payload.pino3\n    }\n};\n\nreturn [msgNome, msgItens];",
         "outputs": 2,
         "timeout": 0,
         "noerr": 0,
@@ -383,7 +385,7 @@
         "type": "debug",
         "z": "0bdcbfbb92e8e12f",
         "name": "debug 5",
-        "active": true,
+        "active": false,
         "tosidebar": true,
         "console": false,
         "tostatus": false,
@@ -399,7 +401,7 @@
         "type": "debug",
         "z": "0bdcbfbb92e8e12f",
         "name": "debug 2",
-        "active": true,
+        "active": false,
         "tosidebar": true,
         "console": false,
         "tostatus": false,
@@ -415,7 +417,7 @@
         "type": "debug",
         "z": "0bdcbfbb92e8e12f",
         "name": "debug 3",
-        "active": true,
+        "active": false,
         "tosidebar": true,
         "console": false,
         "tostatus": false,
@@ -431,7 +433,7 @@
         "type": "debug",
         "z": "0bdcbfbb92e8e12f",
         "name": "debug 4",
-        "active": true,
+        "active": false,
         "tosidebar": true,
         "console": false,
         "tostatus": false,
@@ -440,6 +442,38 @@
         "statusType": "auto",
         "x": 750,
         "y": 500,
+        "wires": []
+    },
+    {
+        "id": "402bf3d626841810",
+        "type": "debug",
+        "z": "0bdcbfbb92e8e12f",
+        "name": "debug 6",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 480,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "15ce6e702d84a4a4",
+        "type": "debug",
+        "z": "0bdcbfbb92e8e12f",
+        "name": "debug 7",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 480,
+        "y": 280,
         "wires": []
     },
     {
