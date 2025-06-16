@@ -35,7 +35,6 @@
         "y": 280,
         "wires": [
             [
-                "95e7c496d6a8d829",
                 "8b172b3ab00b345b",
                 "aa3be72826696712",
                 "eec5ca02dbccb097"
@@ -66,7 +65,7 @@
         "id": "13ff9b6adfa8a72c",
         "type": "sqlite",
         "z": "0bdcbfbb92e8e12f",
-        "mydb": "23892abdd9f1d5ab",
+        "mydb": "f5cab1f8463a3e68",
         "sqlquery": "msg.topic",
         "sql": "",
         "name": "Inserir cliente",
@@ -93,8 +92,7 @@
         "wires": [
             [
                 "e2702e24032d72b6",
-                "5168f5151900f1d5",
-                "0bf3bbb3bc4e71fc"
+                "5168f5151900f1d5"
             ]
         ]
     },
@@ -102,7 +100,7 @@
         "id": "e2702e24032d72b6",
         "type": "sqlite",
         "z": "0bdcbfbb92e8e12f",
-        "mydb": "23892abdd9f1d5ab",
+        "mydb": "f5cab1f8463a3e68",
         "sqlquery": "msg.topic",
         "sql": "",
         "name": "Inserir pedido",
@@ -116,7 +114,7 @@
         "id": "a453401c3b1ae9f0",
         "type": "sqlite",
         "z": "0bdcbfbb92e8e12f",
-        "mydb": "23892abdd9f1d5ab",
+        "mydb": "f5cab1f8463a3e68",
         "sqlquery": "msg.topic",
         "sql": "",
         "name": "Inserir itens",
@@ -150,7 +148,7 @@
         "id": "64d7f59997319598",
         "type": "sqlite",
         "z": "0bdcbfbb92e8e12f",
-        "mydb": "23892abdd9f1d5ab",
+        "mydb": "f5cab1f8463a3e68",
         "sqlquery": "msg.topic",
         "sql": "",
         "name": "SELECT Nome",
@@ -193,22 +191,6 @@
         ]
     },
     {
-        "id": "9a387fa2133dfb14",
-        "type": "debug",
-        "z": "0bdcbfbb92e8e12f",
-        "name": "debug 1",
-        "active": false,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "false",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 1500,
-        "y": 500,
-        "wires": []
-    },
-    {
         "id": "aa3be72826696712",
         "type": "function",
         "z": "0bdcbfbb92e8e12f",
@@ -224,8 +206,7 @@
         "y": 460,
         "wires": [
             [
-                "5168f5151900f1d5",
-                "52eeda6116456fac"
+                "5168f5151900f1d5"
             ]
         ]
     },
@@ -245,8 +226,8 @@
         "y": 420,
         "wires": [
             [
-                "9a387fa2133dfb14",
-                "a453401c3b1ae9f0"
+                "a453401c3b1ae9f0",
+                "91f57426e1db2b93"
             ]
         ]
     },
@@ -333,12 +314,10 @@
         "y": 120,
         "wires": [
             [
-                "41946784d6850fcd",
-                "402bf3d626841810"
+                "41946784d6850fcd"
             ],
             [
-                "f97c4518999b93e1",
-                "15ce6e702d84a4a4"
+                "f97c4518999b93e1"
             ]
         ]
     },
@@ -389,7 +368,8 @@
         "tosidebar": true,
         "console": false,
         "tostatus": false,
-        "complete": "false",
+        "complete": "payload",
+        "targetType": "msg",
         "statusVal": "",
         "statusType": "auto",
         "x": 1200,
@@ -397,90 +377,121 @@
         "wires": []
     },
     {
-        "id": "0bf3bbb3bc4e71fc",
-        "type": "debug",
+        "id": "91f57426e1db2b93",
+        "type": "function",
         "z": "0bdcbfbb92e8e12f",
-        "name": "debug 2",
-        "active": false,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "false",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 880,
-        "y": 680,
-        "wires": []
-    },
-    {
-        "id": "95e7c496d6a8d829",
-        "type": "debug",
-        "z": "0bdcbfbb92e8e12f",
-        "name": "debug 3",
-        "active": false,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "false",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 280,
-        "y": 200,
-        "wires": []
-    },
-    {
-        "id": "52eeda6116456fac",
-        "type": "debug",
-        "z": "0bdcbfbb92e8e12f",
-        "name": "debug 4",
-        "active": false,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "false",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 750,
+        "name": "Preparar select",
+        "func": "let count = context.get('count') || 0;\nlet ultimo = msg.payload[0]; // pega o primeiro item do array recebido\n\ncount += 1;\ncontext.set('count', count);\ncontext.set('ultimo', ultimo);\n\n// Quando chegar na 9ª mensagem\nif (count === 9) {\n    context.set('count', 0); // reseta para próxima rodada\n    return [{ payload: context.get('ultimo') }];\n}\n\nreturn null; // não envia nada até receber a 9ª\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1480,
         "y": 500,
-        "wires": []
+        "wires": [
+            [
+                "b8fe555dbb3e138b"
+            ]
+        ]
     },
     {
-        "id": "402bf3d626841810",
-        "type": "debug",
+        "id": "b8fe555dbb3e138b",
+        "type": "function",
         "z": "0bdcbfbb92e8e12f",
-        "name": "debug 6",
-        "active": false,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "false",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 480,
-        "y": 80,
-        "wires": []
+        "name": "SELECT ",
+        "func": "const pedido_numero = msg.payload;\nmsg.topic = \"SELECT ip.pino, i.item, ip.quantidade FROM Itens_Pedido ip INNER JOIN Itens i ON i.id_item = ip.id_item WHERE ip.pedido_numero = $pedido_numero ORDER BY ip.pino\";\n\nmsg.payload = [pedido_numero];\n\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1660,
+        "y": 500,
+        "wires": [
+            [
+                "31d8fc01905147b7"
+            ]
+        ]
     },
     {
-        "id": "15ce6e702d84a4a4",
+        "id": "31d8fc01905147b7",
+        "type": "sqlite",
+        "z": "0bdcbfbb92e8e12f",
+        "mydb": "f5cab1f8463a3e68",
+        "sqlquery": "msg.topic",
+        "sql": "",
+        "name": "Resgatar pedido",
+        "x": 1820,
+        "y": 500,
+        "wires": [
+            [
+                "06a8b5f9e39b9ef1",
+                "b1b71c09f36fdc5c"
+            ]
+        ]
+    },
+    {
+        "id": "06a8b5f9e39b9ef1",
         "type": "debug",
         "z": "0bdcbfbb92e8e12f",
-        "name": "debug 7",
+        "name": "debug 1",
         "active": true,
         "tosidebar": true,
         "console": false,
         "tostatus": false,
-        "complete": "false",
+        "complete": "payload",
+        "targetType": "msg",
         "statusVal": "",
         "statusType": "auto",
-        "x": 480,
-        "y": 280,
+        "x": 1930,
+        "y": 560,
         "wires": []
     },
     {
-        "id": "23892abdd9f1d5ab",
+        "id": "b1b71c09f36fdc5c",
+        "type": "function",
+        "z": "0bdcbfbb92e8e12f",
+        "name": "Tratamento para enviar para o CLP",
+        "func": "const itemMap = {\n    \"Redonda\": 1,\n    \"Quadrada\": 2,\n    \"QUadrada\": 2,\n    \"Hexagonal\": 3\n};\n\nconst entrada = msg.payload;\nconst porPino = {};\n\n// Agrupar por pino\nentrada.forEach(obj => {\n    const pino = obj.pino;\n    if (!porPino[pino]) porPino[pino] = [];\n    porPino[pino].push(itemMap[obj.item.trim()] || 0);\n});\n\nconst resultados = [];\nlet offset = 0;\n\nObject.keys(porPino).sort().forEach(pino => {\n    porPino[pino].forEach((valor) => {\n        resultados.push({\n            payload: valor,\n            topic: `DB5,DINT${offset}` // Ajuste conforme tipo de dado\n        });\n        offset += 4; // 4 bytes por DINT\n    });\n});\n\nreturn [resultados];\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 2110,
+        "y": 500,
+        "wires": [
+            [
+                "dbf6c7e00b92dd5b"
+            ]
+        ]
+    },
+    {
+        "id": "dbf6c7e00b92dd5b",
+        "type": "debug",
+        "z": "0bdcbfbb92e8e12f",
+        "name": "debug 2",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 2350,
+        "y": 500,
+        "wires": []
+    },
+    {
+        "id": "f5cab1f8463a3e68",
         "type": "sqlitedb",
         "db": "C:\\Users\\JV\\Desktop\\Integrative Project\\Projeto-Integrador\\Pedidos.db",
-        "mode": "READWRITE"
+        "mode": "RWC"
     },
     {
         "id": "321c869846817278",
