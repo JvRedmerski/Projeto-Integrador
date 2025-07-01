@@ -30,7 +30,6 @@ def pedidos():
     cur = get_db().cursor()
     cur.execute("""
         SELECT 
-            'Aberto' AS status,
             p.pedido_numero,
             c.nome AS nome_cliente,
             p.data_pedido

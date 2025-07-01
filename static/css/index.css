@@ -7,8 +7,10 @@
 
 body {
     display: flex;
-    background: #f4f4f4;
+    background: #fff;
     height: 100vh;
+    margin: 0;
+    flex-direction: column;
 }
 
 .header {
@@ -16,7 +18,7 @@ body {
     background-image: url("/static/img/header_bg.png");
     background-size: cover;
     background-position: center;
-    padding: 0.8rem 2rem;
+    height: 10px;
 }
 
 aside {
@@ -25,6 +27,13 @@ aside {
     width: 250px;
     background: #383836;
     color: white;
+    transform: translateX(-250px);
+    transition: transform 0.3s ease;
+    z-index: 1000;
+}
+
+aside.open {
+    transform: translateX(0);
 }
 
 aside h1 {
@@ -36,34 +45,61 @@ nav a {
     display: block;
     color: white;
     text-decoration: none;
-    margin: 10px 0;
-    padding: 8px 12px;
-    border-radius: 4px;
     padding: 20px;
 }
 
 nav a:hover,
 nav a.active {
     background: #3e4160;
-    padding: 20px;
+}
+
+.menu-toggle {
+    position: fixed;
+    left: 0;
+    top: 20px;
+    width: 40px;
+    height: 40px;
+    background: #f9f9f9; /* Cor do fundo da tabela quando não ativado */
+    color: #383836;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 1001;
+    font-size: 24px;
+    border: none;
+    transition: background 0.3s ease;
+}
+
+.menu-toggle:hover {
+    background: #e0e0e0;
+}
+
+aside.open ~ .menu-toggle {
+    left: 200px;
+    top: 20px;
+    background: transparent; /* Cor do fundo da sidebar quando ativado */
+    color: white;
 }
 
 main {
     flex-grow: 1;
     padding: 20px;
-    margin-left: 250px;
+    margin-left: 40px; /* Espaçamento inicial para evitar sobreposição da zona de input */
+    transition: margin-left 0.3s ease;
 }
 
-header {
+main header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
+    background: #fff;
 }
 
 .btn {
     padding: 10px 18px;
-    background: #00c2c2;
+    background: #6b46c1;
     border: none;
     border-radius: 20px;
     color: white;
@@ -73,30 +109,46 @@ header {
 
 table {
     width: 100%;
-    background: white;
     border-collapse: collapse;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    background: #fff;
 }
 
 th,
 td {
-    padding: 12px 16px;
+    padding: 12px;
     border-bottom: 1px solid #eee;
     text-align: left;
 }
 
 th {
     background: #f9f9f9;
-}
-
-.status {
-    color: #00c2c2;
-    font-weight: bold;
+    font-weight: 600;
 }
 
 input[type="text"] {
     padding: 8px 12px;
     border: 1px solid #ccc;
     border-radius: 4px;
-    width: 300px;
+    width: 200px;
+}
+
+.bosch-banner {
+    width: 100%;
+    height: 7px;
+    position: fixed;
+    bottom: 0;
+    z-index: 1000;
+}
+
+@media (max-width: 768px) {
+    main {
+        padding: 10px;
+    }
+    input[type="text"] {
+        width: 150px;
+    }
+}
+
+aside.open ~ main {
+    margin-left: 290px; /* 250px da sidebar + 40px do menu-toggle */
 }

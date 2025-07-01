@@ -18,12 +18,11 @@
       <a href="#">Pedidos</a>
     </nav>
   </aside>
+  <div class="menu-toggle">☰</div>
   <main>
     <header>
-      <form action="{{ url_for('buscar_pedido') }}" method="get" style="display: flex; gap: 10px;">
-        <input type="text" id="clienteInput" name="termo" list="clientes" placeholder="Nome do cliente ou nº do pedido"
-          autocomplete="off" />
-        <datalist id="clientes"></datalist>
+      <form action="{{ url_for('buscar_pedido') }}" method="get" style="display: flex; gap: 10px; align-items: center;">
+        <input type="text" id="clienteInput" name="termo" placeholder="Nome ou pedido" autocomplete="off" />
         <button type="submit" class="btn">Buscar</button>
       </form>
       <a href="{{ url_for('novo_pedido') }}">
@@ -33,17 +32,15 @@
     <table>
       <thead>
         <tr>
-          <th>Status</th>
-          <th>Pedido #</th>
-          <th>Nome do Cliente</th>
-          <th>Data pedido</th>
+          <th>Pedido</th>
+          <th>Cliente</th>
+          <th>Data</th>
           <th>Detalhes</th>
         </tr>
       </thead>
       <tbody>
-        {% for status, pedido_numero, nome_cliente, data_pedido in pedidos %}
+        {% for pedido_numero, nome_cliente, data_pedido in pedidos %}
         <tr>
-          <td class="status">{{ status }}</td>
           <td>{{ pedido_numero }}</td>
           <td>{{ nome_cliente }}</td>
           <td>{{ data_pedido | datetimeformat }}</td>
@@ -57,10 +54,19 @@
       </tbody>
     </table>
   </main>
+  <footer class="bosch-banner">
+    <div class="header"></div>
+  </footer>
 
   <script src="/static/js/active.js"></script>
   <script src="/static/js/auto-complete.js"></script>
-
+  <script>
+    const menuToggle = document.querySelector('.menu-toggle');
+    const aside = document.querySelector('aside');
+    menuToggle.addEventListener('click', () => {
+      aside.classList.toggle('open');
+    });
+  </script>
 </body>
 
 </html>
