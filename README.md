@@ -32,10 +32,10 @@ Criar uma solução **inteligente e visualmente acessível** para operadores con
 
 ## ✨ Próximos Passos
 
-- [ ] Conectar o CLP ao Node-RED
+- [X] Conectar o CLP ao Node-RED
 - [x] Desenvolver a lógica de pedidos
 - [x] Criar e publicar a dashboard
-- [ ] Testes e validação em ambiente real
+- [X] Testes e validação em ambiente real
 
 ---
 
