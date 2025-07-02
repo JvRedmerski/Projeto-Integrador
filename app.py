@@ -153,6 +153,7 @@ def detalhes_pedido(pedido_numero):
         FROM Itens_Pedido ip
         JOIN Itens i ON i.id_item = ip.id_item
         WHERE ip.pedido_numero = ?
+        ORDER BY ip.ordem;
     """, (id_pedido,))
     itens_raw = cur.fetchall() # Lista de tuplas: (forma_geom, quantidade)
     
