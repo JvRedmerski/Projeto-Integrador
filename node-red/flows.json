@@ -227,7 +227,7 @@
         "wires": [
             [
                 "a453401c3b1ae9f0",
-                "91f57426e1db2b93"
+                "484d621a6c29a6c0"
             ]
         ]
     },
@@ -368,8 +368,7 @@
         "tosidebar": true,
         "console": false,
         "tostatus": false,
-        "complete": "payload",
-        "targetType": "msg",
+        "complete": "false",
         "statusVal": "",
         "statusType": "auto",
         "x": 1200,
@@ -455,18 +454,19 @@
         "type": "function",
         "z": "0bdcbfbb92e8e12f",
         "name": "Tratamento para enviar para o CLP",
-        "func": "const itemMap = {\n    \"Redonda\": 1,\n    \"Quadrada\": 2,\n    \"QUadrada\": 2,\n    \"Hexagonal\": 3\n};\n\nconst entrada = msg.payload;\nconst porPino = {};\n\n// Agrupar por pino\nentrada.forEach(obj => {\n    const pino = obj.pino;\n    if (!porPino[pino]) porPino[pino] = [];\n    porPino[pino].push(itemMap[obj.item.trim()] || 0);\n});\n\nconst resultados = [];\nlet offset = 0;\n\nObject.keys(porPino).sort().forEach(pino => {\n    porPino[pino].forEach((valor) => {\n        resultados.push({\n            payload: valor,\n            topic: `DB5,DINT${offset}` // Ajuste conforme tipo de dado\n        });\n        offset += 4; // 4 bytes por DINT\n    });\n});\n\nreturn [resultados];\n",
+        "func": "const itemMap = {\n    \"Redonda\": 1,\n    \"Quadrada\": 2,\n    \"QUadrada\": 2,\n    \"Hexagonal\": 3\n};\n\nconst entrada = msg.payload;\nconst porPino = {};\n\n// Agrupar por pino\nentrada.forEach(obj => {\n    const pino = obj.pino;\n    if (!porPino[pino]) porPino[pino] = [];\n    porPino[pino].push(itemMap[obj.item.trim()] || 0);\n});\n\nconst resultados = [];\nlet offset = 0;\nconst maxOffset = 16;\n\nObject.keys(porPino).sort().forEach(pino => {\n    porPino[pino].forEach((valor) => {\n        resultados.push({\n            payload: valor,\n            variable: `DB1,INT${offset}`\n        });\n\n        // Incrementa e reinicia o offset se ultrapassar o máximo\n        offset += 2;\n        if (offset > maxOffset) {\n            offset = 0;\n        }\n    });\n});\n\nreturn [resultados];\n",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 2110,
+        "x": 2100,
         "y": 500,
         "wires": [
             [
-                "dbf6c7e00b92dd5b"
+                "dbf6c7e00b92dd5b",
+                "055125972c91bcb3"
             ]
         ]
     },
@@ -475,7 +475,7 @@
         "type": "debug",
         "z": "0bdcbfbb92e8e12f",
         "name": "debug 2",
-        "active": true,
+        "active": false,
         "tosidebar": true,
         "console": false,
         "tostatus": false,
@@ -486,6 +486,67 @@
         "x": 2350,
         "y": 500,
         "wires": []
+    },
+    {
+        "id": "dc774ed4abcbbde6",
+        "type": "s7 out",
+        "z": "0bdcbfbb92e8e12f",
+        "endpoint": "7743249be5408df4",
+        "variable": "",
+        "name": "CLP",
+        "x": 2430,
+        "y": 660,
+        "wires": []
+    },
+    {
+        "id": "055125972c91bcb3",
+        "type": "delay",
+        "z": "0bdcbfbb92e8e12f",
+        "name": "Delay",
+        "pauseType": "rate",
+        "timeout": "5",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 2290,
+        "y": 580,
+        "wires": [
+            [
+                "dc774ed4abcbbde6"
+            ]
+        ]
+    },
+    {
+        "id": "484d621a6c29a6c0",
+        "type": "delay",
+        "z": "0bdcbfbb92e8e12f",
+        "name": "Delay select",
+        "pauseType": "delay",
+        "timeout": "1",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 1290,
+        "y": 500,
+        "wires": [
+            [
+                "91f57426e1db2b93"
+            ]
+        ]
     },
     {
         "id": "f5cab1f8463a3e68",
@@ -519,5 +580,62 @@
         "useselfsignedcertificate": false,
         "sslterminated": false,
         "verboselogging": false
+    },
+    {
+        "id": "7743249be5408df4",
+        "type": "s7 endpoint",
+        "transport": "iso-on-tcp",
+        "address": "192.168.1.25",
+        "port": "102",
+        "rack": "0",
+        "slot": "1",
+        "localtsaphi": "01",
+        "localtsaplo": "00",
+        "remotetsaphi": "01",
+        "remotetsaplo": "00",
+        "connmode": "rack-slot",
+        "adapter": "",
+        "busaddr": 2,
+        "cycletime": 1000,
+        "timeout": 2000,
+        "name": "CLP",
+        "vartable": [
+            {
+                "addr": "DB1,INT0",
+                "name": "DB1,INT0"
+            },
+            {
+                "addr": "DB1,INT2",
+                "name": "DB1,INT2"
+            },
+            {
+                "addr": "DB1,INT4",
+                "name": "DB1,INT4"
+            },
+            {
+                "addr": "DB1,INT6",
+                "name": "DB1,INT6"
+            },
+            {
+                "addr": "DB1,INT8",
+                "name": "DB1,INT8"
+            },
+            {
+                "addr": "DB1,INT10",
+                "name": "DB1,INT10"
+            },
+            {
+                "addr": "DB1,INT12",
+                "name": "DB1,INT12"
+            },
+            {
+                "addr": "DB1,INT14",
+                "name": "DB1,INT14"
+            },
+            {
+                "addr": "DB1,INT16",
+                "name": "DB1,INT16"
+            }
+        ]
     }
 ]

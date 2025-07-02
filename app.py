@@ -34,7 +34,8 @@ def pedidos():
             c.nome AS nome_cliente,
             p.data_pedido
         FROM Pedidos p
-        JOIN Clientes c ON p.id_cliente = c.id_cliente;
+        JOIN Clientes c ON p.id_cliente = c.id_cliente
+        ORDER BY data_pedido DESC;
     """)
     pedidos = cur.fetchall()
     return render_template('index.html', pedidos=pedidos)
